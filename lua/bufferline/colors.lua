@@ -2,16 +2,17 @@ local api = vim.api
 
 local M = {}
 
-function M.to_rgb(color)
+
+function M.to_rgb(color) -- {{{
   local r = tonumber(string.sub(color, 2,3), 16)
   local g = tonumber(string.sub(color, 4,5), 16)
   local b = tonumber(string.sub(color, 6), 16)
   return r, g, b
 end
+-- }}}
 
--- SOURCE:
--- https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
-function M.shade_color(color, percent)
+-- @see https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+function M.shade_color(color, percent) -- {{{
   local r, g, b = M.to_rgb(color)
 
   -- If any of the colors are missing return "NONE" i.e. no highlight
@@ -37,7 +38,9 @@ function M.shade_color(color, percent)
 
   return "#"..rr..gg..bb
 end
+-- }}}
 
+-- Is birght {{{
 --- Determine whether to use black or white text
 -- Ref: https://stackoverflow.com/a/1855903/837964
 -- https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
@@ -56,6 +59,9 @@ function M.color_is_bright(hex)
     return false -- Dark colors, white font
   end
 end
+-- }}}
+
+-- =================================================================================================
 
 function M.get_hex(hl_name, part, fallback)
   if not fallback then fallback = "none" end

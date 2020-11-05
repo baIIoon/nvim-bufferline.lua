@@ -1,3 +1,5 @@
+local vim,api = vim,vim.api
+
 local lua_devicons_loaded, webdev_icons = pcall(require, 'nvim-web-devicons')
 if lua_devicons_loaded then webdev_icons.setup() end
 --------------------------------
@@ -10,49 +12,59 @@ local M = {}
 local terminal_icon = " "
 local terminal_buftype = "terminal"
 
---------------------------------
--- A collection of buffers
---------------------------------
----@class Buffers @parent class
+--- Buffers class
 M.Buffers = {}
 
-function M.Buffers:new(n)
+function M.Buffers:new(n) -- {{{
   local t = n or {length = 0, buffers = {}}
   self.__index = self
   return setmetatable(t, self)
 end
+-- }}}
 
-function M.Buffers.__add(a, b)
+function M.Buffers.__add(a, b) -- {{{
   return a.length + b.length
 end
+-- }}}
 
 -- Take a section and remove a buffer arbitrarily
 -- reducing the length is very important as otherwise we don't know
 -- a section is actually smaller now
-function M.Buffers:drop(index)
+function M.Buffers:drop(index) -- {{{
   if self.buffers[index] ~= nil then
     self.length = self.length - self.buffers[index].length
     table.remove(self.buffers, index)
     return self
   end
 end
+-- }}}
 
-function M.Buffers:add(buf)
+function M.Buffers:insert(buf) -- {{{
   table.insert(self.buffers, buf)
   self.length = self.length + buf.length
 end
+-- }}}
 
-local function buffer_is_terminal(buf)
+local function buffer_is_terminal(buf) -- {{{
   return string.find(buf.path, 'term://') or buf.buftype == terminal_buftype
 end
+-- }}}
 
---------------------------------
--- A single buffer
---------------------------------
----@class Buffer @parent class
+--- Buffer class
+-- @field id number buffer id
+-- @field name string file name
+-- @field extension string file extension
+-- @field path string file path
+-- @field index number buffer ordinal index
+-- @field icon string icon
+-- @field modified boolean if a buffer is modified
+-- @field modifiable boolean TODO: Documentation
+-- @field length TODO: Clarify
+-- @field buftype TODO: Clarify
+-- @field components TODO: Clarify
 M.Buffer = {}
 
-function M.Buffer:new(buf)
+function M.Buffer:new(buf) -- {{{
   buf.modifiable = vim.fn.getbufvar(buf.id, '&modifiable') == 1
   buf.modified = vim.fn.getbufvar(buf.id, '&modified') == 1
   buf.buftype = vim.fn.getbufvar(buf.id, '&buftype')
@@ -80,6 +92,7 @@ function M.Buffer:new(buf)
   self.__index = self
   return setmetatable(buf, self)
 end
+-- }}}
 
 -- Borrowed this trick from
 -- https://github.com/bagrat/vim-buffet/blob/28e8535766f1a48e6006dc70178985de2b8c026d/autoload/buffet.vim#L186
@@ -90,13 +103,15 @@ end
 
 -- FIXME this does not work if the same buffer is open in multiple window
 -- maybe do something with win_findbuf(bufnr('%'))
-function M.Buffer:current()
+function M.Buffer:is_current() -- {{{
   return vim.fn.winbufnr(0) == self.id
 end
+-- }}}
 
-function M.Buffer:visible()
+function M.Buffer:visible() -- {{{
   return vim.fn.bufwinnr(self.id) > 0
 end
+-- }}}
 
 M.lua_devicons_loaded = lua_devicons_loaded
 
